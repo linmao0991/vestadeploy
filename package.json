@@ -1,10 +1,10 @@
 {
-  "name": "1-Passport-Example",
+  "name": "Vesta",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "if-env NODE_ENV=production && npm run start:prod || npm run start:dev",
+    "start": "node server.js",
     "start:prod": "node server.js",
     "start:dev": "concurrently \"node server.js\" \"npm run client\"",
     "client": "cd client && npm run start",
@@ -21,6 +21,7 @@
     "concurrently": "^5.0.2",
     "express": "^4.17.0",
     "express-session": "^1.16.1",
+    "heroku-cli": "^7.0.9",
     "if-env": "^1.0.4",
     "mysql2": "^1.6.5",
     "nodemon": "^2.0.2",
