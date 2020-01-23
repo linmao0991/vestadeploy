@@ -59,6 +59,7 @@ router.post("/users/join_home", (req, res) => {
 router.post("/home/create", (req, res) => {
   db.Homes.create({
     home_name: req.body.home_name,
+    home_admin: req.body.home_admin,
     master_key: req.body.master_key,
     invitation_key: req.body.invitation_key,
     street: req.body.street,
@@ -102,7 +103,8 @@ router.get("/home/find_by_id/:id", (req, res) => {
         id: house.id,
         home_name: house.home_name,
         city: house.city,
-        state: house.state
+        state: house.state,
+        home_admin: house.home_admin
       })
     })
     .catch(err => {
@@ -211,6 +213,7 @@ router.post("/get/pets", function (req, res) {
   });
 });
 
+// Add pet
 router.post("/add/pets", function (req, res) {
   db.Pets.create({
     home_id: req.body.home_id,
@@ -227,6 +230,20 @@ router.post("/add/pets", function (req, res) {
       res.status(401).json(err);
     });
 });
+
+//Remove pet
+router.post("/remove/pet/:id", function (req,res) {
+  db.Pets.destroy({
+    where: {
+      id: req.params.id
+    }
+  }).then(response => {
+    res.json({
+      remove: "successful",
+      data: response
+    })
+  })
+})
 
 //Route to get all vets from array
 //---Not functioning----

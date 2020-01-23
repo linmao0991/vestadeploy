@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default {
-  // PASSPORT CALLS
+// PASSPORT CALLS
   //Gets user_data only returns data if signed in
   isSignedIn: () => {
     return axios.get("/api/user_data");
@@ -18,6 +18,8 @@ export default {
   signOut: () => {
     return axios.get("/api/logout");
   },
+//----------------------//
+
 
 //-----USER CALLS-----//
   // Returns all other users in the current user's home
@@ -29,16 +31,18 @@ export default {
   joinHome: joinData => {
     return axios.post("/api/users/join_home", joinData);
   },
+//----------------------//
+
 
 //-----Home Calls-----//
   //Find home by invitation key aka home key
   findHomeByInvKey: id => {
-    return axios.get("/api/home/find_by_key/"+id)
+    return axios.get("/api/home/find_by_key/" + id)
   },
 
   //find home by home id
   findHomeById: id => {
-    return axios.get("/api/home/find_by_id/"+id)
+    return axios.get("/api/home/find_by_id/" + id)
   },
 
   //Create a new home
@@ -46,6 +50,8 @@ export default {
     console.log(homeData);
     return axios.post("/api/home/create", homeData)
   },
+//----------------------//
+
 
 //-----CHORE CALLS----//
   // Returns all chores for the user's home id
@@ -55,12 +61,15 @@ export default {
 
   // Adds new chore to user's home
   addChore: choreData => {
+    console.log(choreData);
     return axios.post("/api/add/chores", choreData);
   },
   // Used for marking a chore complete
   markChoreComplete: choreData => {
     return axios.post("/api/edit/complete-chore", choreData);
   },
+//----------------------//
+
 
 //-----PET CALLS-----//
   // Returns all pets associated with the user's home id
@@ -69,14 +78,23 @@ export default {
   },
   // Adds new pet to user's home
   addPet: petData => {
-    return axios.post("/api/add/pets", petData);
+    return axios.post("/api/add/pet", petData);
   },
+  // Removes a pet 
+  removePet: petId => {
+    console.log(petId)
+    return axios.post("/api/remove/pet/" + petId)
+  },
+//----------------------//
+
 
 //-----VET CALLS-------//
   getVetsByMultId: vetsArray => {
     console.log(vetsArray);
     return axios.post("/api/get/vets", vetsArray)
   },
+//----------------------//
+
 
 //-----PANTRY CALLS-----//
   // Returns all items in pantry table associated with user's home id
@@ -87,4 +105,5 @@ export default {
   addPantryItem: itemData => {
     return axios.post("/api/add/pantry", itemData);
   }
+//----------------------//
 };
