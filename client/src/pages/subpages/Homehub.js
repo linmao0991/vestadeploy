@@ -38,7 +38,6 @@ class Homehub extends Component {
       created_by: '',
       point_value: '',
       startDate: new Date(),
-<<<<<<< HEAD
       newPetData: {
         pet_name: undefined,
         age: undefined,
@@ -56,8 +55,6 @@ class Homehub extends Component {
         email: undefined,
         emergency_clinic: undefined
       },
-=======
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
     };
 
   }
@@ -71,7 +68,6 @@ class Homehub extends Component {
     }
   }
 
-<<<<<<< HEAD
   submitPet = (newPetData, admin, user) => {
     if (admin === user) {
       console.log("Here doggy!")
@@ -122,37 +118,6 @@ class Homehub extends Component {
           homeState: response.data.state,
           home_id: response.data.id,
           home_admin: response.data.home_admin
-=======
-  // updateStateValues = (values) =>{
-  //   this.setState({
-  //     user_id: values.user_id,
-  //     username: values.username,
-  //     firstname: values.firstname,
-  //     lastname: values.lastname,
-  //     email: values.email,
-  //     home_id: values.home_id,
-  //   });
-  // }
-
-  handleFindHome = (homeid) => {
-    API.findHomeById(homeid)
-        .then(response=> {
-            //console.log(response.data)
-            this.setState({
-                user_id: this.props.state.user_id,
-                username: this.props.state.username,
-                firstname: this.props.state.firstname,
-                lastname: this.props.state.lastname,
-                homeName: response.data.home_name,
-                homeCity: response.data.city,
-                homeState: response.data.state,
-                home_id: response.data.id,
-                home_admin: response.data.home_admin
-            })
-            //this.updateStateValues(this.props.state)
-        }).catch(err => {
-            console.log(err)
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
         })
         //this.updateStateValues(this.props.state)
       }).catch(err => {
@@ -182,13 +147,8 @@ class Homehub extends Component {
   //Removes duplicate vet ids from pets array
   removeDuplicates = (array) => {
     let thisArray = array
-<<<<<<< HEAD
     let finalArray = thisArray.reduce((tempArray, arrayValue) => {
       if (tempArray.indexOf(arrayValue.primary_vet_id) === -1) {
-=======
-    let finalArray = thisArray.reduce((tempArray, arrayValue)=>{
-      if(tempArray.indexOf(arrayValue.primary_vet_id) === -1){
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
         tempArray.push(arrayValue.primary_vet_id)
       }
       return tempArray;
@@ -200,11 +160,7 @@ class Homehub extends Component {
   //Function that iterates through each pet and inserts primary pet info as a new property
   insertVetToPet = (petArray, vetArray) => {
     petArray.forEach(thisPet => {
-<<<<<<< HEAD
       let petVet = vetArray.find(({ id }) =>
-=======
-      let petVet = vetArray.find( ({id}) => 
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
         id = thisPet.primary_vet_id
       )
       thisPet.primary_vet_info = petVet;
@@ -213,7 +169,6 @@ class Homehub extends Component {
     return petArray;
   }
 
-<<<<<<< HEAD
   getAllVets = () => {
     API.getAllVets()
       .then(response => {
@@ -223,8 +178,6 @@ class Homehub extends Component {
       }).catch()
   }
 
-=======
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
   //Function to get all chroes by home id
   getChores = (homeid) => {
     API.getAllChores({
@@ -265,7 +218,6 @@ class Homehub extends Component {
   //Function to get pet data by home id and vets data for pets
   getPetData = (homeid) => {
     //Api call for getting all bets beloning to home
-<<<<<<< HEAD
     API.getAllPets({ home_id: homeid })
       .then(res => {
         //Calls function removeDuplicates and sets vetsArray to return value
@@ -273,15 +225,6 @@ class Homehub extends Component {
         //Apy call to get vets data by the array in vetsArray
         API.getVetsByMultId({ vets: vetsArray })
           .then(vetData => {
-=======
-    API.getAllPets({home_id: homeid})
-      .then( res => {
-        //Calls function removeDuplicates and sets vetsArray to return value
-        let vetsArray = this.removeDuplicates(res.data);
-        //Apy call to get vets data by the array in vetsArray
-        API.getVetsByMultId({vets: vetsArray})
-          .then( vetData => {
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
             //Sets the state for primary_vets with the return API call data
             this.setState({
               primary_vets: vetData.data
@@ -293,13 +236,10 @@ class Homehub extends Component {
             })
           }).catch()
       }).catch()
-<<<<<<< HEAD
   }
 
   displayAllVetsInPets = () => {
     this.refs.displayAllVetsReference.getAllVetDropSelection();
-=======
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
   }
 
   handleChange = selectedOption => {
@@ -444,7 +384,6 @@ class Homehub extends Component {
                         <hr />
                         <div className="row">
                           {this.state.petData.map(pet => (
-<<<<<<< HEAD
                             <Pets
                               key={pet.id}
                               pet={pet}
@@ -456,19 +395,6 @@ class Homehub extends Component {
                               getPetData={this.getPetData}
                             />
                           ))}
-=======
-                              <Pets
-                                key = {pet.id} 
-                                pet = {pet}
-                                user = {this.state.user_id}
-                                firstname = {this.state.firstname}
-                                home_id = {this.state.home_id}
-                                primary_vets = {this.state.primary_vets}
-                                home_admin = {this.state.home_admin}
-                                getPetData = {this.getPetData}
-                                />
-                            ))}
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
                         </div>
                       </div>
                     </div>

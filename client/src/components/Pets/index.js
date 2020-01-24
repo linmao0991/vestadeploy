@@ -1,20 +1,14 @@
 import React, { Component } from "react";
 import {Modal} from 'react-bootstrap';
 import DeletePet from "../DeletPet";
-<<<<<<< HEAD
 import {NewPetForm, NewPetTitle } from "../NewPetForm";
-=======
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
 import API from "../../utils/API"
 
 class Pets extends Component{
 
     state = {
         modalShow: false,
-<<<<<<< HEAD
         modalFunc: undefined,
-=======
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
     }
 
     deletePet = (petId, admin, user) => {
@@ -28,12 +22,8 @@ class Pets extends Component{
       }
     }
 
-<<<<<<< HEAD
     openModal = (modalFunc) => {
         this.setState({ modalFunc: modalFunc})
-=======
-    openModal = () => {
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
         this.setState({ modalShow: true});
     }
 
@@ -52,18 +42,13 @@ class Pets extends Component{
         return (
           <DeletePet 
             clickFunc = {() => this.deletePet(this.props.pet.id, admin, user)}
-<<<<<<< HEAD
           >Remove</DeletePet>
-=======
-          />
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
           )
       }else{
         return null
       }
     }
 
-<<<<<<< HEAD
     modalTitleSwitch(modalFunc){
       switch (modalFunc) {
         case "pet":
@@ -103,8 +88,6 @@ class Pets extends Component{
       }
     }
 
-=======
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
     render() {
       return (
         <div className="col-sm-3">
@@ -113,37 +96,15 @@ class Pets extends Component{
             <div className="card-body">
               <h5 className="card-title">{this.props.pet.pet_name}</h5>
               <p className="card-text">Age:{this.props.pet.age}</p>
-<<<<<<< HEAD
               <button onClick={()=> this.openModal("pet")} className="btn btn-primary">More information</button>
-=======
-              <button onClick={this.openModal} className="btn btn-primary">More information</button>
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
             </div>
           </div>
           <Modal show={this.state.modalShow} onHide={this.closeModal} backdrop='static'>
             <Modal.Title>
-<<<<<<< HEAD
                 {this.modalTitleSwitch(this.state.modalFunc)}
             </Modal.Title>
             <Modal.Body>
                 {this.modalBodySwitch(this.state.modalFunc)}
-=======
-                <div className="">
-                    <h2 ref={subtitle => this.subtitle = subtitle}>{this.props.pet.pet_name} <span className="float-right">{this.adminFunctionDeletePet(this.props.home_admin, this.props.user)}</span></h2>
-                </div>
-            </Modal.Title>
-            <Modal.Body>
-              <div>
-                <p>Pet Name: {this.props.pet.pet_name}</p>
-                <p>Pet Aage: {this.props.pet.age}</p>
-                <hr/>
-                <p>Primary Vet: {this.props.pet.primary_vet_info.practice_name}</p>
-                <p>Phone Number: {this.props.pet.primary_vet_info.phone_number}</p>
-                <p>Address: {this.props.pet.primary_vet_info.street}, {this.props.pet.primary_vet_info.city}, {this.props.pet.primary_vet_info.state} {this.props.pet.primary_vet_info.zip}</p>
-                <hr/>
-                <p className="card-text">Pets description</p>
-              </div>
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
             </Modal.Body>
             <Modal.Footer>
               <div>

@@ -81,11 +81,7 @@ class AddChore extends React.Component {
     assignCreatedBy = () => {
         API.isSignedIn().then(res => {
             console.log(res)
-<<<<<<< HEAD
             this.setState({ created_by: res.data.username })
-=======
-            this.setState({ created_by: res.data.id })
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
             console.log("User assigned:" + this.state.created_by)
         })
     }
@@ -94,20 +90,11 @@ class AddChore extends React.Component {
         API.addChore({
             home_id: 1,
             chore_name: this.state.chore_name,
-<<<<<<< HEAD
             created_by: this.state.created_by,
             assigned_user: this.state.selectedOption.value,
             point_value: this.state.point_value,
             start_date_time: this.state.startDate,
             end_date_time: this.state.endDate,
-=======
-            created_by: 1,
-            // assigned_user: this.state.selectedOption,
-            assigned_user: this.state.selectedOption.value,
-            point_value: this.state.point_value,
-            start_date_time: this.state.startDate,
-            end_date_time: this.state.startDate,
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
             repeats: false,
             repeat_interval: "d",
             completed: false,

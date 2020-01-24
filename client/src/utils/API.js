@@ -61,7 +61,6 @@ export default {
 
   // Adds new chore to user's home
   addChore: choreData => {
-    console.log(choreData);
     return axios.post("/api/add/chores", choreData);
   },
 
@@ -82,7 +81,6 @@ export default {
   },
   // Adds new pet to user's home
   addPet: petData => {
-<<<<<<< HEAD
     console.log(petData)
     return axios.post("/api/add/pet", petData);
     // home_id: req.body.home_id,
@@ -91,9 +89,6 @@ export default {
     // animal_type: req.body.animal_type,
     // primary_vet_id: req.body.primary_vet_id,
     // emergency_vet_id: req.body.emergency_vet_id
-=======
-    return axios.post("/api/add/pet", petData);
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
   },
   // Removes a pet 
   removePet: petId => {
@@ -109,8 +104,6 @@ export default {
     console.log(vetsArray);
     return axios.post("/api/get/vets", vetsArray)
   },
-//----------------------//
-
 
   getAllVets: () => {
     return axios.get("/api/get/all_vets")

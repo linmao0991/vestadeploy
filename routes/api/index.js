@@ -227,11 +227,7 @@ router.post("/get/pets", function (req, res) {
 });
 
 // Add pet
-<<<<<<< HEAD
 router.post("/add/pet", function (req, res) {
-=======
-router.post("/add/pets", function (req, res) {
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
   db.Pets.create({
     home_id: req.body.home_id,
     pet_name: req.body.pet_name,
@@ -251,25 +247,6 @@ router.post("/add/pets", function (req, res) {
 //Remove pet
 router.post("/remove/pet/:id", function (req,res) {
   db.Pets.destroy({
-<<<<<<< HEAD
-=======
-    where: {
-      id: req.params.id
-    }
-  }).then(response => {
-    res.json({
-      remove: "successful",
-      data: response
-    })
-  })
-})
-
-//Route to get all vets from array
-//---Not functioning----
-//---Use raw sql queries to find all rows based on multiple conditions 
-router.post("/get/vets", function (req, res) {
-  db.Vets.findAll({
->>>>>>> 4891c9e633c356ffd51dba06af6d311b06610975
     where: {
       id: req.params.id
     }
