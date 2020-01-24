@@ -39,7 +39,7 @@ class Vesta extends Component {
 
   authentication = () => {
       API.isSignedIn().then(res => {
-        console.log(res);
+          console.log("Authentication")
           //If res.email is true then render this menu
           if(res.data.id){
               this.setState({
@@ -147,14 +147,14 @@ class Vesta extends Component {
     return (
       <div>
         {/* Navbar Component */}
-        <ScrollspyNav
+        {/* <ScrollspyNav
             scrollTargetIds={["page-top","about", "services", "team"]}
             offset={-56}
             activeNavClass="is-active"
             scrollDuration="400"
             headerBackground="true"
             router='Route'
-        >
+        > */}
           <Navbar 
             authenticated={this.state.authenticated} 
             user_id={this.state.user_id} 
@@ -167,7 +167,7 @@ class Vesta extends Component {
             clickModalSignUp = {this.handleSignUpShow}
             clickSignout = {this.handleSignOutSubmit}
           />
-        </ScrollspyNav>
+        {/* </ScrollspyNav> */}
 
         {/* Page Content Routes */}
         <div id="page-top">

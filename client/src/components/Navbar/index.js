@@ -76,7 +76,7 @@ function Navbar (props){
                                         <a className="nav-link" href="#team">Team</a>
                                     </li>
                                     <li className="nav-item">
-                                        <a className="nav-link" href="" onClick={props.clickModalSignIn}>Sign In</a>
+                                        <a className="nav-link" href="#" onClick={props.clickModalSignIn}>Sign In</a>
                                     </li>
                                     <li className="nav-item">
                                         <a className="nav-link" href="#" onClick={props.clickModalSignUp}>Sign Up</a>
