@@ -1,25 +1,38 @@
 import React, { Component } from "react";
-import { Link, Redirect } from "react-router-dom";
+import { Redirect } from "react-router-dom";
 import { Modal } from "react-bootstrap";
-import Select from 'react-select';
 import Pets from "../../components/Pets";
 import { NewPetForm, NewPetTitle } from "../../components/NewPetForm";
 import { NewVetForm, NewVetTitle } from "../../components/NewVetForm";
 import API from "../../utils/API";
 import Chores from '../../components/Chores/index'
-import AddChore from '../../components/AddChore/index'
+import { AddChore, AddChoreTitle } from '../../components/AddChore/index'
+import { DeleteChore, DeleteChoreTitle } from '../../components/DeleteChore/index'
+import PantryItem from '../../components/PantryItem/index'
+import { AddPantryItem, AddPantryItemTitle } from '../../components/AddPantryItem/index'
+import { DeletePantryItem, DeletePantryItemTitle } from '../../components/DeletePantryItem/index'
+import Table from 'react-bootstrap/Table'
+
+// import { Pantry, Recipe } from '../../components/Pantry'
+// import recipeeval from "../../../public/assets/javascript/recipes"
+
 
 class Homehub extends Component {
   constructor() {
     super();
 
     this.state = {
-      selectedOption: undefined,
+      selectedDeleteOption: undefined,
+      selectedAddOption: undefined,
       mondalFunc: undefined,
       modalShow: undefined,
       chores: [],
       petData: [],
       // users: []
+      pantryItems: [],
+      orderedPantryItems: [],
+      itemsneeded: [],
+      recipesuggested: [],
       user_id: undefined,
       username: undefined,
       firstname: undefined,
@@ -62,15 +75,17 @@ class Homehub extends Component {
   componentDidMount() {
     //console.log(this.props.state);
     if (this.props.authenticated) {
+      this.grabUsers(this.props.state.home_id);
       this.getChores(this.props.state.home_id);
       this.getPetData(this.props.state.home_id);
-      this.handleFindHome(this.props.state.home_id)
+      this.handleFindHome(this.props.state.home_id);
+      this.listPantry(this.props.state.home_id);
     }
   }
 
   submitPet = (newPetData, admin, user) => {
     if (admin === user) {
-      console.log("Here doggy!")
+      //console.log("Here doggy!")
       API.addPet(newPetData)
         .then(response => {
           console.log(response.data)
@@ -80,7 +95,7 @@ class Homehub extends Component {
   }
 
   adminFunctionAddpet = (admin, user) => {
-    console.log(this.props)
+    //console.log(this.props)
     if (admin === user) {
       return (
         <div>
@@ -93,8 +108,19 @@ class Homehub extends Component {
     }
   }
 
+  adminFunctionAddChore = (admin, user) => {
+    //console.log(this.props)
+    if (admin === user) {
+      return (
+        <button type="button" className="btn btn-secondary" onClick={() => this.openModal("addChore")}>Add Chore</button>
+      )
+    } else {
+      return null
+    }
+  }
+
   adminFunctionDeleteChore = (admin, user) => {
-    console.log(this.props)
+    //console.log(this.props)
     if (admin === user) {
       return (
         <button type="button" className="btn btn-danger" onClick={() => this.openModal("deleteChore")}>Delete Chore</button>
@@ -104,9 +130,33 @@ class Homehub extends Component {
     }
   }
 
+  adminFunctionAddPantry = (admin, user) => {
+    //console.log(this.props)
+    if (admin === user) {
+      return (
+        <button type="button" className="btn btn-secondary" onClick={() => this.openModal("addItem")}>Add Item</button>
+      )
+    } else {
+      return null
+    }
+  }
+
+  adminFunctionDeletePantry = (admin, user) => {
+    //console.log(this.props)
+    if (admin === user) {
+      return (
+        <button type="button" className="btn btn-danger" onClick={() => this.openModal("deleteItem")}>Delete Item</button>
+      )
+    } else {
+      return null
+    }
+  }
+
   handleFindHome = (homeid) => {
+    console.log("[Homehub.js handleFindHome]")
     API.findHomeById(homeid)
       .then(response => {
+        console.log("[Homehub.js handleFindHome - Complete]")
         //console.log(response.data)
         this.setState({
           user_id: this.props.state.user_id,
@@ -129,20 +179,21 @@ class Homehub extends Component {
     return !item.completed
   }
 
-  // storeUsernames = array => {
-  //     return array.username;
-  // }
+  storeUsernames = array => {
+    return array.username;
+  }
 
-  // grabUsers = userHome => {
-  //     API.getAllHomeUsers({
-  //         home_id: userHome
-  //     })
-  //         .then(res => {
-  //             let usersArray = res.data.map(this.storeUsernames)
-  //             this.setState({ users: usersArray });
-  //             console.log(this.state.users);
-  //         })
-  // }
+  grabUsers = userHome => {
+    console.log("[Homehub.js grabUsers]")
+    API.getAllHomeUsers({
+      home_id: userHome
+    })
+      .then(res => {
+        let usersArray = res.data.map(this.storeUsernames)
+        this.setState({ users: usersArray });
+        console.log("[Homehub.js grabUsers - Complete]")
+      })
+  }
 
   //Removes duplicate vet ids from pets array
   removeDuplicates = (array) => {
@@ -160,19 +211,15 @@ class Homehub extends Component {
   //Function that iterates through each pet and inserts primary pet info as a new property
   insertVetToPet = (petArray, vetArray) => {
     petArray.forEach(thisPet => {
-      let petVet = vetArray.find(({ id }) =>
-        id = thisPet.primary_vet_id
-      )
+      let petVet = vetArray.find(({id}) => id === thisPet.primary_vet_id)
       thisPet.primary_vet_info = petVet;
     })
-
     return petArray;
   }
 
   getAllVets = () => {
     API.getAllVets()
       .then(response => {
-        console.log(response)
         this.setState({ all_vets: response.data })
         this.displayAllVetsInPets();
       }).catch()
@@ -192,7 +239,6 @@ class Homehub extends Component {
   };
 
   deleteChore = (choreId) => {
-    console.log("test")
     // API.deleteChore({
     //   chore_id: choreId
     // })
@@ -242,9 +288,98 @@ class Homehub extends Component {
     this.refs.displayAllVetsReference.getAllVetDropSelection();
   }
 
+  //pull pantry info to state
+  listPantry = homeID => {
+    console.log("[Homehub.js listPantry]")
+    API.getPantryItems({
+      home_id: homeID
+    })
+      .then(res => {
+        console.log("[Homehub.js listPantry - Complete]")
+        //console.log(res)
+        let pantry = res.data;
+        this.setState({ pantryItems: pantry });
+      })
+  }
+
+  orderPantryItems = (a, b) => {
+    const itemA = a.item_name.toUpperCase();
+    const itemB = b.item_name.toUpperCase();
+
+    let comparison = 0;
+    if (itemA > itemB) {
+      comparison = 1;
+    } else if (itemA < itemB) {
+      comparison = -1;
+    }
+    return comparison
+  }
+
+  // convertToDays = milliseconds => {
+  //   var seconds = (milliseconds / 1000);
+  //   var minutes = seconds / 60;
+  //   var hours = minutes / 60;
+  //   var days = hours / 24;
+  //   return days
+  // }
+
+  // needItems = pantry => {
+  //   var need = []
+  //   for (var i = 0; i++; i < pantry.length) {
+  //     if (pantry[i].date_out > 0) {
+  //       var timeLeft = pantry[i].date_out - Date.now();
+  //       var dayOut = convertToDays(timeLeft);
+  //       if (dayOut < 3) {
+  //         need.append(pantry[i]);
+  //       }
+  //     } else if (pantry[i].quantity <= pantry[i].low_quantity) {
+  //       need.append(pantry[i]);
+  //     }
+  //   }
+  //   return need;
+  // }
+
+
+  // needPantry = homeID => {
+  //   API.getPantryItems({
+  //     home_id: homeID
+  //   })
+  //     .then(res => {
+  //       var needed = needItems(res);
+  //       this.setState({ itemsneeded: needed })
+  //     })
+  // }
+
+
+  // recipeInfo = homeID => {
+  //   API.getPantryItems({
+  //     home_id: homeID
+  //   })
+  //     .then(res => {
+  //       var chosen = recipeeval.pickRecipe(res)
+  //       this.setState({ recipesuggested: chosen })
+  //     })
+  // }
+
+  //Function to change the state values on input change
+  handleInputChange = event => { }
+
   handleChange = selectedOption => {
     this.setState({ selectedOption });
   };
+
+  handleStartDateChange = date => {
+    this.setState({
+      startDate: date
+    });
+  };
+
+  handleEndDateChange = date => {
+    this.setState({
+      endDate: date
+    });
+  };
+
 
   modalTitleSwitch(modalFunc) {
     switch (modalFunc) {
@@ -262,11 +397,21 @@ class Homehub extends Component {
         return (
           <NewVetTitle />
         );
+      case "addChore":
+        return (
+          <AddChoreTitle />
+        );
       case "deleteChore":
         return (
-          <div>
-            <h2>Delete Chore</h2>
-          </div>
+          <DeleteChoreTitle />
+        );
+      case "addItem":
+        return (
+          <AddPantryItemTitle />
+        );
+      case "deleteItem":
+        return (
+          <DeletePantryItemTitle />
         );
     }
   };
@@ -275,9 +420,13 @@ class Homehub extends Component {
     const choreOptions = this.state.chores.map(chore => (
       { value: chore.id, label: chore.chore_name }
     ))
-    console.log(choreOptions)
+    const { selectedDeleteOption } = this.state;
 
-    const { selectedOption } = this.state;
+    const userOptions = this.state.users.map(user => (
+      { value: user, label: user }
+    ))
+    // const { selectedAddOption } = this.state;
+
     switch (modalFunc) {
       case "pet":
         return (
@@ -312,20 +461,49 @@ class Homehub extends Component {
             closeModal={this.closeModal}
           />
         );
+      case "addChore":
+        return (
+          <AddChore
+            home_id={this.state.home_id}
+            getChores={this.getChores}
+            closeModal={this.closeModal}
+            created_by={this.props.state.firstname}
+          />
+        );
       case "deleteChore":
         return (
-          <div>
-            <Select
-              value={selectedOption}
-              onChange={this.handleChange}
-              options={choreOptions}
-            />
-          </div>
+          <DeleteChore
+            home_id={this.state.home_id}
+            getChores={this.getChores}
+            closeModal={this.closeModal}
+            chores={this.state.chores}
+          />
+        );
+      case "addItem":
+        return (
+          <AddPantryItem
+            home_id={this.state.home_id}
+            listPantry={this.listPantry}
+            closeModal={this.closeModal}
+            created_by={this.props.state.firstname}
+          />
+        );
+      case "deleteItem":
+        return (
+          <DeletePantryItem
+            home_id={this.state.home_id}
+            listPantry={this.listPantry}
+            closeModal={this.closeModal}
+            pantry={this.state.pantryItems}
+          />
         );
     }
   }
 
   render() {
+    //console.log(this.state.pantryItems)
+
+    this.state.pantryItems.sort(this.orderPantryItems)
     return (
       <div>
         {this.props.authenticated ?
@@ -355,26 +533,31 @@ class Homehub extends Component {
 
                     {/* chores content goes here */}
                     <div className="tab-pane fade show active" id="chores" role="tabpanel" aria-labelledby="chores-tab" style={{ textAlign: "center" }}>
-                      <AddChore user_id={this.state.user_id} handleClick={this.handleClick} getChores={this.getChores} />
-                      <br />
-                      <div>{this.adminFunctionDeleteChore(this.state.home_admin, this.state.user_id)}</div>
+                      {/* <AddChore user_id={this.state.user_id} handleClick={this.handleClick} getChores={this.getChores} /> */}
+                      <div>
+                        <span>{this.adminFunctionAddChore(this.state.home_admin, this.state.user_id)}</span>
+                        <span> </span>
+                        <span>{this.adminFunctionDeleteChore(this.state.home_admin, this.state.user_id)}</span>
+                      </div>
                       <hr />
-                      {this.state.chores.map(chore => (
-                        console.log(chore.start_date_time),
-                        < Chores
-                          key={chore.id}
-                          // users={this.state.users}
-                          id={chore.id}
-                          choreName={chore.chore_name}
-                          createdBy={chore.created_by}
-                          assignedUser={chore.assigned_user}
-                          pointValue={chore.point_value}
-                          startDateTime={chore.start_date_time}
-                          endDateTime={chore.end_date_time}
-                          repeatInterval={chore.repeat_interval}
-                          getChores={this.getChores}
-                        />
-                      ))}
+                      {this.state.chores.length > 0 ?
+                        this.state.chores.map(chore => (
+                          < Chores
+                            key={chore.id}
+                            id={chore.id}
+                            choreName={chore.chore_name}
+                            createdBy={chore.created_by}
+                            assignedUser={chore.assigned_user}
+                            pointValue={chore.point_value}
+                            startDateTime={chore.start_date_time}
+                            endDateTime={chore.end_date_time}
+                            repeatInterval={chore.repeat_interval}
+                            getChores={this.getChores}
+                          />
+                        ))
+                        :
+                        <h2>No chores</h2>
+                      }
                     </div>
 
                     {/* pet data goes here */}
@@ -383,31 +566,75 @@ class Homehub extends Component {
                         <div>{this.adminFunctionAddpet(this.state.home_admin, this.state.user_id)}</div>
                         <hr />
                         <div className="row">
-                          {this.state.petData.map(pet => (
-                            <Pets
-                              key={pet.id}
-                              pet={pet}
-                              user={this.state.user_id}
-                              firstname={this.state.firstname}
-                              home_id={this.state.home_id}
-                              primary_vets={this.state.primary_vets}
-                              home_admin={this.state.home_admin}
-                              getPetData={this.getPetData}
-                            />
-                          ))}
+                          <div className="col">
+                            <div className="card-deck">
+                              {this.state.petData.length > 0 ?
+                                  this.state.petData.map(pet => (
+                                    <Pets
+                                      key={pet.id}
+                                      pet={pet}
+                                      user={this.state.user_id}
+                                      firstname={this.state.firstname}
+                                      home_id={this.state.home_id}
+                                      primary_vets={this.state.primary_vets}
+                                      home_admin={this.state.home_admin}
+                                      getPetData={this.getPetData}
+                                    />
+                                  ))
+                                  :
+                                  // TODO not centered
+                                  <h2>No Pets</h2>
+                                }
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* pantry data goes here */}
                     <div className="tab-pane fade" id="pantry" role="tabpanel" aria-labelledby="pantry-tab">
+                      <div>
+                        <span>{this.adminFunctionAddPantry(this.state.home_admin, this.state.user_id)}</span>
+                        <span> </span>
+                        <span>{this.adminFunctionDeletePantry(this.state.home_admin, this.state.user_id)}</span>
+                      </div>
+                      <br />
+                      {this.state.pantryItems.length > 0 ?
+                        <Table striped bordered>
+                          <thead>
+                            <tr>
+                              <th>Icon</th>
+                              <th>Item</th>
+                              <th>Item Type</th>
+                              <th>Date In</th>
+                              <th><i className="fas fa-minus"></i></th>
+                              <th>Quantity</th>
+                              <th><i className="fas fa-plus"></i></th>
+                            </tr>
+                          </thead>
+                          {this.state.pantryItems.map(item => (
+                            <PantryItem
+                              key={item.id}
+                              id={item.id}
+                              home_id={this.state.home_id}
+                              item_name={item.item_name}
+                              item_type={item.item_type}
+                              quantity={item.quantity}
+                              date_in={item.date_in}
+                              listPantry={this.listPantry}
+                            />
+                          ))}
+                        </Table> :
+                        <h2>No items</h2>
+                      }
+                    </div>
+                    {/* <div className="tab-pane fade" id="pantry" role="tabpanel" aria-labelledby="pantry-tab">
                       <div className="container">
                         <div className="row">
                           <div className="col-6">
                             <h4>Items in pantry:</h4>
                             <ul className="list-group list-group-flush">
-                              <li className="list-group-item list-group-item-success"><h4>Cookies</h4>
-                                <button type="button" className="btn btn-success" style={{ margin: 5 }}>Purchased!</button>
+                              <li className="list-group-item list-group-item-success">
+                                {this.state.pantryitems.map(item => (<Pantry item={item} />))}
                               </li>
                             </ul>
                           </div>
@@ -415,7 +642,7 @@ class Homehub extends Component {
                             <h4>Items needed:</h4>
                             <ul className="list-group list-group-flush">
                               <li className="list-group-item list-group-item-danger"><h4>Milk</h4>
-                                <button type="button" className="btn btn-success" style={{ margin: 5 }}>Purchased!</button>
+                                {this.state.itemsneeded.map(item => (<Pantry item={item} />))}
                               </li>
                             </ul>
                           </div>
@@ -423,11 +650,9 @@ class Homehub extends Component {
                       </div>
                       <br />
                       <div className="row">
-                        <div className="col-12">
-                          <p>Recipe Info Here</p>
-                        </div>
+                        {this.state.recipesuggested.map(recipe => (<Recipe recipe={recipe} />))}
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

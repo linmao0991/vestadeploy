@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import  { Route, Link, Switch} from 'react-router-dom'
+import { Route, Link, Switch } from 'react-router-dom'
 import ScrollspyNav from "react-scrollspy-nav";
 import Navbar from "../components/Navbar";
 import SignIn from "../components/SignIn";
@@ -7,13 +7,14 @@ import SignUp from "../components/Signup";
 import Home from "./subpages/Home";
 import Homeless from "./subpages/Homeless";
 import Homehub from "./subpages/Homehub";
+import Account from "./subpages/Account";
 import NoMatch from "./subpages/NoMatch";
 import Footer from "../components/Footer";
-import {Modal} from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import API from "../utils/API";
 
 class Vesta extends Component {
-  constructor(){
+  constructor() {
     super();
 
     this.state = {
@@ -24,35 +25,78 @@ class Vesta extends Component {
       lastname: undefined,
       email: undefined,
       home_id: undefined,
+      home_name: undefined,
+      home_key: undefined,
+      home_admin: undefined,
+      home_street: undefined,
+      home_city: undefined,
+      home_state: undefined,
+      home_zip: undefined,
+      home_members: undefined,
       authenticated: false,
       modalShow: false,
-      modalFunc: undefined
+      modalFunc: undefined,
+      signupErrResponse: false,
+      signInErrResponse: false
     };
 
     this.handleClose = this.handleClose.bind(this);
     this.handleSignInShow = this.handleSignInShow.bind(this);
   }
 
-  componentDidMount(){
-      this.authentication();
+  componentDidMount() {
+    this.authentication();
   }
 
   authentication = () => {
-      API.isSignedIn().then(res => {
-          console.log("Authentication")
-          //If res.email is true then render this menu
-          if(res.data.id){
-              this.setState({
-                authenticated: true,
-                firstname: res.data.first_name,
-                lastname: res.data.last_name,
-                home_id: res.data.home_id,
-                user_id: res.data.id,
-                email: res.data.email
-              });
-          //If res.email is not true render this menu
-          }
-      }).catch();
+    API.isSignedIn().then(res => {
+      console.log("[Vesta.js Authentication]")
+      //If res.email is true then render this menu
+      if (res.data.id) {
+        this.setState({
+          authenticated: true,
+          firstname: res.data.first_name,
+          lastname: res.data.last_name,
+          home_id: res.data.home_id,
+          user_id: res.data.id,
+          email: res.data.email
+        });
+        console.log(res.data)
+        console.log("[Vesta.js Authentication - Complete]")
+        this.getHomeInformation(res.data.home_id)
+        this.getHomeMembers(res.data.home_id)
+      }
+    }).catch();
+  }
+
+  getHomeMembers = home_id => {
+    console.log("[Vesta.js getHomeMembers]")
+    API.getAllHomeUsers({ home_id: home_id })
+      .then(response => {
+        console.log("[Vesta.js getHomeMembers - Complete]")
+        this.setState({ home_members: response.data })
+      }).catch(err => {
+        console.log(err)
+      })
+  }
+
+  getHomeInformation = home_id => {
+    console.log("[Vesta.js getHomeInformation]")
+    API.findHomeById(home_id)
+      .then(response => {
+        console.log("[Vesta.js getHomeInformation - Complete]")
+        this.setState({
+          home_key: response.data.invitation_key,
+          home_admin: response.data.home_admin,
+          home_name: response.data.home_name,
+          home_street: response.data.street,
+          home_city: response.data.city,
+          home_state: response.data.state,
+          home_zip: response.data.zip
+        })
+      }).catch(err=>{
+        console.log(err.response)
+      })
   }
 
   //Function to change the state values on input change
@@ -70,26 +114,28 @@ class Vesta extends Component {
       email: this.state.email,
       password: this.state.password
     }).then(res => {
-        this.setState({
-          authenticated: true,
-          firstname: res.data.first_name,
-          lastname: res.data.last_name,
-          home_id: res.data.home_id,
-          user_id: res.data.id,
-          password: undefined
-        });
-        if(res.data.home_id === null){
-          this.authentication();
-          this.handleClose()
-          this.props.history.push("/Homeless")
-        }else{
+      this.setState({
+        authenticated: true,
+        firstname: res.data.first_name,
+        lastname: res.data.last_name,
+        home_id: res.data.home_id,
+        user_id: res.data.id,
+        password: undefined
+      });
+      if (res.data.home_id === null) {
+        this.authentication();
+        this.handleClose()
+        this.props.history.push("/Homeless")
+      } else {
         this.authentication();
         this.handleClose()
         this.props.history.push("/Homehub")
-        }
+      }
     }).catch(err => {
-      //Do something with the err
-      //console.log(err)
+      if (err) {
+        this.signInErrorTimeout()
+        console.log("error" + err)
+      }
     })
   };
 
@@ -98,85 +144,117 @@ class Vesta extends Component {
     event.preventDefault();
     //API post for signing up.
     API.signUp({
-        //This is the data the API server requires for signing up, change them based on the what the server requires.
-        email: this.state.email,
-        password: this.state.password,
-        username: this.state.username,
-        fName: this.state.firstname,
-        lName: this.state.lastname
-      }).then( res => {
-        this.setState({
-          firstname: res.data.first_name,
-          lastname: res.data.last_name,
-          home_id: null,
-          user_id: res.data.id,
-          password: undefined
-        });
-        this.authentication();
-        this.handleClose()
-        this.props.history.push("/Homeless")
-      }).catch( err => {
-        //Do something with error
+      //This is the data the API server requires for signing up, change them based on the what the server requires.
+      email: this.state.email,
+      password: this.state.password,
+      username: this.state.username,
+      fName: this.state.firstname,
+      lName: this.state.lastname
+    }).then(res => {
+      this.setState({
+        firstname: res.data.first_name,
+        lastname: res.data.last_name,
+        home_id: null,
+        user_id: res.data.id,
+        password: undefined
+      });
+      this.authentication();
+      this.handleClose()
+      this.props.history.push("/Homeless")
+    }).catch(err => {
+
+      // console.log(err)
+      //Do something with error
+      if (err.response) {
+        this.signupErrorTimeout()
+        // this.setState({ signupErrResponse: true })
+        console.log(this.state.signupErrResponse);
+      }
     });
   }
 
   handleSignOutSubmit = () => {
     API.signOut()
-      .then( res => {
-          this.setState({authenticated: false});
-          this.props.history.push("/")
-        })
+      .then(res => {
+        this.setState({ authenticated: false });
+        this.props.history.push("/")
+      })
   }
 
 
-  handleClose = () =>{
-    this.setState({modalShow: false})
+  handleClose = () => {
+    this.setState({ modalShow: false })
   }
 
-  handleSignInShow = () =>{
-    this.setState({modalFunc: "SignIn"})
-    this.setState({modalShow: true})
+  handleSignInShow = () => {
+    this.setState({ modalFunc: "SignIn" })
+    this.setState({ modalShow: true })
   }
 
-  handleSignUpShow = () =>{
-    this.setState({modalFunc: "SignUp"})
-    this.setState({modalShow: true})
+  handleSignUpShow = () => {
+    this.setState({ modalFunc: "SignUp" })
+    this.setState({ modalShow: true })
+  }
+
+  // Sets signupErrResponse state for Alert on Signup component. Resets to false after 5 seconds to dismiss modal
+  signupErrorTimeout = () => {
+    this.setState({ signupErrResponse: true });
+    setTimeout(
+      function () {
+        this.setState({ signupErrResponse: false });
+      }
+        .bind(this),
+      5000
+    );
+  }
+
+  signInErrorTimeout = () => {
+    this.setState({ signInErrResponse: true });
+    setTimeout(
+      function () {
+        this.setState({ signInErrResponse: false });
+      }
+        .bind(this),
+      5000
+    );
   }
 
   render() {
     return (
       <div>
         {/* Navbar Component */}
-        {/* <ScrollspyNav
-            scrollTargetIds={["page-top","about", "services", "team"]}
-            offset={-56}
-            activeNavClass="is-active"
-            scrollDuration="400"
-            headerBackground="true"
-            router='Route'
-        > */}
-          <Navbar 
-            authenticated={this.state.authenticated} 
-            user_id={this.state.user_id} 
-            username={this.state.username} 
-            firstname= {this.state.firstname} 
-            lastname= {this.state.lastname} 
-            email= {this.state.email} 
-            home_id= {this.state.home_id} 
-            clickModalSignIn = {this.handleSignInShow}
-            clickModalSignUp = {this.handleSignUpShow}
-            clickSignout = {this.handleSignOutSubmit}
-          />
-        {/* </ScrollspyNav> */}
+        <Navbar
+          authenticated={this.state.authenticated}
+          user_id={this.state.user_id}
+          username={this.state.username}
+          firstname={this.state.firstname}
+          lastname={this.state.lastname}
+          email={this.state.email}
+          home_id={this.state.home_id}
+          clickModalSignIn={this.handleSignInShow}
+          clickModalSignUp={this.handleSignUpShow}
+          clickSignout={this.handleSignOutSubmit}
+        />
 
         {/* Page Content Routes */}
         <div id="page-top">
-        <Switch>
-          <Route path="/" exact render={Home}/>
-          <Route path="/Homeless" exact render={props => (<Homeless {...props} state={this.state} authenticated={this.state.authenticated} authenticate={this.authentication}/>)} />
-          <Route path="/Homehub" exact render={props => (<Homehub {...props} state={this.state} authenticated={this.state.authenticated} authenticate={this.authentication}/>)}/>
-          <Route component={NoMatch}/>
-        </Switch>
+
+          <Switch>
+            <Route path="/" exact render={Home} />
+            <Route path="/Homeless" exact render={props => (<Homeless {...props} state={this.state} authenticated={this.state.authenticated} authenticate={this.authentication} />)} />
+            <Route path="/Account" exact render={props => (
+              <Account
+                {...props}
+                state={this.state}
+                authenticated={this.state.authenticated}
+                authenticate={this.authentication}
+                getHomeMembers={this.getHomeMembers}
+                getHomeInformation={this.getHomeInformation}
+              />
+            )} />
+            <Route path="/Homehub" exact render={props => (<Homehub {...props} state={this.state} authenticated={this.state.authenticated} authenticate={this.authentication} />)} />
+            <Route component={NoMatch} />
+          </Switch>
         </div>
         <Footer />
 
@@ -184,23 +262,25 @@ class Vesta extends Component {
         <Modal show={this.state.modalShow} onHide={this.handleClose}>
           <Modal.Header closeButton>
             <Modal.Title>
-              { this.state.modalFunc === "SignIn" ?
-                <div>Sign In</div>:
-                  this.state.modalFunc === "SignUp" ? <div>Sign Up</div>: null
+              {this.state.modalFunc === "SignIn" ?
+                <div>Sign In</div> :
+                this.state.modalFunc === "SignUp" ? <div>Sign Up</div> : null
               }</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            { this.state.modalFunc === "SignIn" ?
+            {this.state.modalFunc === "SignIn" ?
               <SignIn
-              // Passing through functions
-              handleFormSubmit={this.handleSignInSubmit}
-              handleInputChange={this.handleInputChange}
-              />
-              :this.state.modalFunc === "SignUp" ?
-                <SignUp
                 // Passing through functions
-                handleSignUpSubmit={this.handleSignUpSubmit}
+                handleFormSubmit={this.handleSignInSubmit}
                 handleInputChange={this.handleInputChange}
+                signInErrResponse={this.state.signInErrResponse}
+              />
+              : this.state.modalFunc === "SignUp" ?
+                <SignUp
+                  // Passing through functions
+                  handleSignUpSubmit={this.handleSignUpSubmit}
+                  handleInputChange={this.handleInputChange}
+                  signupErrResponse={this.state.signupErrResponse}
                 />
                 : null
             }

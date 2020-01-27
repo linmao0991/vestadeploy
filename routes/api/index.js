@@ -4,6 +4,59 @@ var passport = require("../../config/passport");
 var router = require("express").Router();
 const { Op } = require("sequelize");
 
+//Bcrypt
+var bcrypt = require("bcryptjs");
+const saltRounds = 10;
+
+//Amazon S3 and photouploading packages
+var aws = require('aws-sdk');
+aws.config.region = "us-east-2";
+var Bucket_Name = "vestahomehub";
+var User_Key = "AKIAQIP4V7J5YFU53RZ4";
+var Secret_Key = "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";
+if (process.env.NODE_ENV === "production") {
+  var Bucket_Name = process.env.S3_BUCKET;
+  var User_Key = process.env.AWS_ACCESS_KEY;
+  var Secret_Key = process.env.AWS_SECRET_ACCESS_KEY;
+}
+
+//-------------------------------//
+//-----Upload to Amazon S3-------//
+//-------------------------------//
+router.get('/sign-s3', function(req, res) {
+  var s3 = new aws.S3({
+    accessKeyId: User_Key,
+    secretAccessKey: Secret_Key,
+  });
+
+  var fileName = req.query['file-name'];
+  var fileType = req.query['file-type'];
+  var uniqueName = Date.now()+""+fileName;
+  var s3Params = {
+    Bucket: Bucket_Name,
+    Key: uniqueName,
+    Expires: 60,
+    ContentType: fileType,
+    ACL: 'public-read'
+  };
+
+  s3.getSignedUrl('putObject', s3Params, function(err, data) {
+    if(err){
+      console.log(err);
+      return res.end();
+    }
+    var returnData = {
+      signedRequest: data,
+      url: "https://"+Bucket_Name+".s3.amazonaws.com/"+uniqueName
+    };
+    res.write(JSON.stringify(returnData));
+    res.end();
+  });
+});
+
+//------------------------------//
+//----------User Routes---------//
+//------------------------------//
 // Using the passport.authenticate middleware with our local strategy.
 // If the user has valid login credentials, send them to the members page.
 // Otherwise the user will be sent an error
@@ -23,7 +76,7 @@ router.post("/signup", function (req, res) {
     last_name: req.body.lName
   })
     .then(function (dbUser) {
-      req.login(dbUser, function(err){
+      req.login(dbUser, function (err) {
         if (err) {
           console.log(err);
         }
@@ -31,9 +84,29 @@ router.post("/signup", function (req, res) {
       res.json(dbUser);
     })
     .catch(function (err) {
-      res.status(401).json(err);
+      console.log(err.errors[0].message)
+      res.status(401).json({ error: err.errors[0].message });
+
     });
 });
+
+//Remove user from home
+router.post("/users/remove_from_home", (req, res)=>{
+  db.User.update({
+    home_id: null
+  },
+  {
+    where: {
+      id: req.body.user_id
+    }
+  }).then( response => {
+    console.log(response)
+    res.json(response)
+  }).catch( err =>{
+    console.log(err)
+    res.status(401).json(err)
+  })
+})
 
 // Route for joining a home
 router.post("/users/join_home", (req, res) => {
@@ -53,63 +126,6 @@ router.post("/users/join_home", (req, res) => {
     }).catch(err => {
       res.status(401).json(err);
     })
-})
-
-// Route to create home
-router.post("/home/create", (req, res) => {
-  db.Homes.create({
-    home_name: req.body.home_name,
-    home_admin: req.body.home_admin,
-    master_key: req.body.master_key,
-    invitation_key: req.body.invitation_key,
-    street: req.body.street,
-    city: req.body.city,
-    state: req.body.state,
-    zip: req.body.zip
-  }).then(homeData => {
-    res.json(homeData)
-  }).catch(err => {
-    res.status(401).json(err);
-  })
-})
-
-// Route for finding home by invitation key
-router.get("/home/find_by_key/:id", (req, res) => {
-  db.Homes.findOne({
-    where: {
-      invitation_key: req.params.id
-    }
-  }).then(house => {
-    res.json({
-      id: house.id,
-      home_name: house.home_name,
-      city: house.city,
-      state: house.state
-    })
-  })
-    .catch(err => {
-      res.json(err)
-    })
-})
-
-// Route for finding home by home id
-router.get("/home/find_by_id/:id", (req, res) => {
-  db.Homes.findOne({
-    where: {
-      id: req.params.id
-    }
-  }).then(house => {
-    res.json({
-        id: house.id,
-        home_name: house.home_name,
-        city: house.city,
-        state: house.state,
-        home_admin: house.home_admin
-      })
-    })
-    .catch(err => {
-      res.json(err)
-  })
 })
 
 // Route for logging user out
@@ -153,6 +169,179 @@ router.post("/get/users", function (req, res) {
   });
 });
 
+//Update user account info
+// Post for changing the 'completed' to true
+router.post("/users/account_update",  (req, res) => {
+  db.User.update(
+    {
+      [req.body.field]: req.body.value
+    }, 
+    {
+      where: {
+        id: req.body.user_id
+      }
+    }
+  )
+    .then(function (dbUpdatedUser) {
+      res.json(dbUpdatedUser);
+    })
+    .catch(function (err) {
+      res.json(err);
+    });
+});
+
+//Updating user password
+router.post("/users/password_update", (req, res) => {
+  //Find users old password in database
+  db.User.findOne({
+    where: {
+      id: req.body.user_id
+    }
+  }).then(dbUser =>{
+    //Compare database password with user input old password
+    bcrypt.compare(req.body.old_password, dbUser.password)
+      .then( result=>{
+        //if result === true
+        if(result){
+          //Hash the new password
+          bcrypt.hash(req.body.password, saltRounds, (err, hash) =>{
+            //update the db with the new hased password
+            db.User.update({
+              password: hash
+            },{
+              where: {
+                id: req.body.user_id
+              }
+            }).then( userData=>{
+              //return userData
+              res.json(userData)
+            }).catch(err =>{
+              //return error
+              res.status(401).json(err.errors[0].message)
+            })
+          })
+        //if result === false
+        }else{
+          //return failure
+          res.json({
+            update: "Failed",
+            message: "Incorrect old password"
+          })
+        }
+      })
+  })
+})
+
+//------------------------------//
+//----------Home Routes---------//
+//------------------------------//
+// Route to create home
+router.post("/home/create", (req, res) => {
+  db.Homes.create({
+    home_name: req.body.home_name,
+    home_admin: req.body.home_admin,
+    master_key: req.body.master_key,
+    invitation_key: req.body.invitation_key,
+    street: req.body.street,
+    city: req.body.city,
+    state: req.body.state,
+    zip: req.body.zip
+  }).then(homeData => {
+    res.json(homeData)
+  }).catch(err => {
+    res.status(401).json(err);
+  })
+})
+
+//Route to update home address
+router.post("/home/update_address", (req, res)=>{
+  db.Homes.update({
+      home_name:  req.body.home_name,
+      street: req.body.home_street,
+      city: req.body.home_city,
+      state: req.body.home_state,
+      zip: req.body.home_zip,
+      master_key:  req.body.master_key,
+      invitation_key:  req.body.home_key,
+      home_admin:  req.body.home_admin
+    },
+    {
+      where: {
+        id: req.body.home_id
+      }
+    }).then( homeData => {
+      res.json(homeData)
+    }).catch( err =>{
+    res.status(401).json({ error: err.errors[0].message });
+  })
+})
+
+// Route for finding home by invitation key
+router.get("/home/find_by_key/:id", (req, res) => {
+  db.Homes.findOne({
+    where: {
+      invitation_key: req.params.id
+    }
+  }).then(house => {
+    res.json({
+      id: house.id,
+      home_name: house.home_name,
+      city: house.city,
+      state: house.state
+    })
+  })
+    .catch(err => {
+      res.json(err)
+    })
+})
+
+// Route for finding home by home id
+router.get("/home/find_by_id/:id", (req, res) => {
+  db.Homes.findOne({
+    where: {
+      id: req.params.id
+    }
+  }).then(house => {
+    res.json({
+      id: house.id,
+      home_name: house.home_name,
+      street: house.street,
+      city: house.city,
+      state: house.state,
+      zip: house.zip,
+      invitation_key: house.invitation_key,
+      home_admin: house.home_admin
+    })
+  })
+    .catch(err => {
+      res.json(err)
+    })
+});
+
+//Route for getting master key from home
+router.post("/home/master_key/retrieve", (req, res) => {
+  db.Homes.findOne({
+    where: {
+      id: req.body.home_id
+    }
+  }).then(dbHome => {
+    if (dbHome.home_admin === req.body.user_id) {
+      res.json({
+        message: "Retrieve Successful",
+        master_key: dbHome.master_key
+      })
+    } else {
+      res.json({
+        message: "Retrieve Unsuccessful",
+        master_key: null
+      })
+    }
+  })
+});
+
+//------------------------------//
+//---------Chore Routes---------//
+//------------------------------//
 // Grabbing all chores by the user's home_id
 router.post("/get/chores", function (req, res) {
   db.Chore.findAll({
@@ -215,6 +404,10 @@ router.post("/edit/complete-chore", function (req, res) {
     });
 });
 
+
+//------------------------------//
+//----------Pet Routes----------//
+//------------------------------//
 // Grabbing all pets by the user's home_id
 router.post("/get/pets", function (req, res) {
   db.Pets.findAll({
@@ -234,7 +427,8 @@ router.post("/add/pet", function (req, res) {
     age: req.body.age,
     animal_type: req.body.animal_type,
     primary_vet_id: req.body.primary_vet_id,
-    emergency_vet_id: req.body.emergency_vet_id
+    emergency_vet_id: req.body.emergency_vet_id,
+    image_url: req.body.image_url
   })
     .then(function (dbPets) {
       res.json(dbPets);
@@ -245,7 +439,7 @@ router.post("/add/pet", function (req, res) {
 });
 
 //Remove pet
-router.post("/remove/pet/:id", function (req,res) {
+router.post("/remove/pet/:id", function (req, res) {
   db.Pets.destroy({
     where: {
       id: req.params.id
@@ -259,53 +453,56 @@ router.post("/remove/pet/:id", function (req,res) {
 })
 
 
-//----------Vet Route-----------//
 //------------------------------//
-    //Route to get all vets from array
-    router.post("/get/vets", function (req, res) {
-      db.Vets.findAll({
-        where: {
-          id: {
-            [Op.or]: req.body.vets
-          }
-        }
-      }).then(function (dbVets) {
-        res.json(dbVets);
-      }).catch(err=>{
-        res.status(401).json(err);
-      })
-    });
+//----------Vet Routes----------//
+//------------------------------//
+//Route to get all vets from array
+router.post("/get/vets", function (req, res) {
+  db.Vets.findAll({
+    where: {
+      id: {
+        [Op.or]: req.body.vets
+      }
+    }
+  }).then(function (dbVets) {
+    res.json(dbVets);
+  }).catch(err => {
+    res.status(401).json(err);
+  })
+});
 
-    //Route to get all vets
-    router.get("/get/all_vets", (req, res) => {
-      db.Vets.findAll({
-      }).then(response => {
-        res.json(response)
-      })
+//Route to get all vets
+router.get("/get/all_vets", (req, res) => {
+  db.Vets.findAll({
+  }).then(response => {
+    res.json(response)
+  })
+})
+
+//Route to add a vet
+router.post("/add/vet", (req, res) => {
+  db.Vets.create({
+    practice_name: req.body.practice_name,
+    phone_number: req.body.phone_number,
+    street: req.body.street,
+    city: req.body.city,
+    state: req.body.state,
+    zip: req.body.zip,
+    email: req.body.email,
+    emergency_clinic: req.body.emergency_clinic
+  }).then(response => {
+    res.json({
+      message: "Successful Creation",
+      data: response
     })
+  }).catch(err => {
+    res.status(401).json(err);
+  })
+})
 
-    //Route to add a vet
-    router.post("/add/vet", (req, res) =>{
-      db.Vets.create({
-        practice_name: req.body.practice_name,
-        phone_number: req.body.phone_number,
-        street: req.body.street,
-        city: req.body.city,
-        state: req.body.state,
-        zip: req.body.zip,
-        email: req.body.email,
-        emergency_clinic: req.body.emergency_clinic
-      }).then( response => {
-        res.json({
-          message: "Successful Creation",
-          data: response
-        })
-      }).catch(err=>{
-        res.status(401).json(err);
-      })
-    })
-
-
+//------------------------------//
+//------Pantry Routes-----------//
+//-----------------------------//
 // Grabbing all pantry items by the user's home_id
 router.post("/get/pantry", function (req, res) {
   db.Pantry.findAll({
@@ -317,34 +514,64 @@ router.post("/get/pantry", function (req, res) {
   });
 });
 
-router.post("/get/pantryitem", function(req,res){
+router.post("/get/pantryitem", function (req, res) {
   db.Pantry.findAll({
-    where:{
+    where: {
       home_id: req.body.home_id,
       item_name: name
-    }
-  }). then(function(dbPantry){
+    },
+    order: [
+      ['item_name', 'DESC']
+    ]
+  }).then(function (dbPantry) {
     res.json(dbPantry);
   })
 })
 
 
-router.post("add/pantry", function (req, res) {
+router.post("/add/pantry", function (req, res) {
   db.Pantry.create({
     home_id: req.body.home_id,
-    upc: req.body.upc,
     item_name: req.body.item_name,
+    item_type: req.body.item_type,
     quantity: req.body.quantity,
-    best_by: req.body.best_by,
     date_in: req.body.date_in,
-    date_out: req.body.date_out
   })
     .then(function (dbPantry) {
+      console.log(dbPantry)
       res.json(dbPantry);
     })
     .catch(function (err) {
       res.status(401).json(err);
     });
 });
+
+router.post("/update/quantity", function (req, res) {
+  db.Pantry.update({
+    quantity: req.body.quantity
+  }, {
+    where: {
+      id: req.body.id
+    }
+  })
+    .then(function (dbPantry) {
+      res.json(dbPantry);
+    })
+    .catch(function (err) {
+      res.json(err);
+    });
+})
+
+router.post("/delete/pantry", function (req, res) {
+  db.Pantry.destroy({
+    where: {
+      id: req.body.item_id
+    }
+  }).then(function (dbPantry) {
+    res.json(dbPantry);
+  }).catch(function (err) {
+    res.json(err);
+  })
+})
 
 module.exports = router;

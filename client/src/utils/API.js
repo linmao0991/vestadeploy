@@ -1,7 +1,8 @@
 import axios from "axios";
+import { it } from "date-fns/locale";
 
 export default {
-// PASSPORT CALLS
+  // PASSPORT CALLS
   //Gets user_data only returns data if signed in
   isSignedIn: () => {
     return axios.get("/api/user_data");
@@ -18,10 +19,10 @@ export default {
   signOut: () => {
     return axios.get("/api/logout");
   },
-//----------------------//
+  //----------------------//
 
 
-//-----USER CALLS-----//
+  //-----USER CALLS-----//
   // Returns all other users in the current user's home
   getAllHomeUsers: home_id => {
     return axios.post("/api/get/users", home_id);
@@ -31,13 +32,33 @@ export default {
   joinHome: joinData => {
     return axios.post("/api/users/join_home", joinData);
   },
-//----------------------//
+
+  //Update account information
+  updateUserInfo: userData =>{
+    return axios.post("/api/users/account_update", userData)
+  },
+
+  //Update account password
+  updateAccountPass: newPass => {
+    return axios.post("/api/users/password_update", newPass)
+  },
+
+  removeMember: data => {
+    console.log(data)
+    return axios.post("/api/users/remove_from_home", data)
+  },
+  //----------------------//
 
 
-//-----Home Calls-----//
+  //-----Home Calls-----//
   //Find home by invitation key aka home key
   findHomeByInvKey: id => {
     return axios.get("/api/home/find_by_key/" + id)
+  },
+
+  updateHomeAddress: homeData => {
+    console.log(homeData)
+    return axios.post("/api/home/update_address", homeData);
   },
 
   //find home by home id
@@ -50,10 +71,15 @@ export default {
     console.log(homeData);
     return axios.post("/api/home/create", homeData)
   },
-//----------------------//
+
+  //find home master key
+  findHomeMasterKey: reqData => {
+    return axios.post("/api/home/master_key/retrieve", reqData)
+  },
+  //----------------------//
 
 
-//-----CHORE CALLS----//
+  //-----CHORE CALLS----//
   // Returns all chores for the user's home id
   getAllChores: home_id => {
     return axios.post("/api/get/chores", home_id);
@@ -61,20 +87,22 @@ export default {
 
   // Adds new chore to user's home
   addChore: choreData => {
+    console.log(choreData)
     return axios.post("/api/add/chores", choreData);
   },
 
+  // Deletes specified chore
   deleteChore: choreData => {
-    return axios.delete("/api/delete/chores", choreData);
+    return axios.post("/api/delete/chores", choreData);
   },
   // Used for marking a chore complete
   markChoreComplete: choreData => {
     return axios.post("/api/edit/complete-chore", choreData);
   },
-//----------------------//
+  //----------------------//
 
 
-//-----PET CALLS-----//
+  //-----PET CALLS-----//
   // Returns all pets associated with the user's home id
   getAllPets: home_id => {
     return axios.post("/api/get/pets", home_id);
@@ -95,10 +123,10 @@ export default {
     console.log(petId)
     return axios.post("/api/remove/pet/" + petId)
   },
-//----------------------//
+  //----------------------//
 
 
-//-----VET CALLS-------//
+  //-----VET CALLS-------//
   //Search all vets in array and return results
   getVetsByMultId: vetsArray => {
     console.log(vetsArray);
@@ -122,10 +150,10 @@ export default {
     // email: req.body.email,
     // emergency_clinic: req.body.emergency_clinic
   },
-//----------------------//
+  //----------------------//
 
 
-//-----PANTRY CALLS-----//
+  //-----PANTRY CALLS-----//
   // Returns all items in pantry table associated with user's home id
   getPantryItems: home_id => {
     return axios.post("/api/get/pantry", home_id);
@@ -133,6 +161,15 @@ export default {
   // Adds new item to user home's pantry
   addPantryItem: itemData => {
     return axios.post("/api/add/pantry", itemData);
+  },
+  // Adds 1 to chosen item's quantity
+  addOrRemoveOneFromItem: itemData => {
+    console.log(itemData)
+    return axios.post("/api/update/quantity", itemData);
+  },
+  // Deletes item from pantry
+  deletePantryItem: itemData => {
+    return axios.post("/api/delete/pantry", itemData);
   }
-//----------------------//
+  //----------------------//
 };
