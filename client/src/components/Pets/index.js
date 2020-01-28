@@ -80,12 +80,7 @@ class Pets extends Component {
             <p className="card-text">Pets description</p>
           </div>
         );
-      case "newPet":
-        return (
-          <NewPetForm
-            handleInputChange={this.handleInputChange}
-          />
-        );
+      default:
     }
   }
 
@@ -100,9 +95,11 @@ class Pets extends Component {
           </div>
 
           <Modal show={this.state.modalShow} onHide={this.closeModal} backdrop='static'>
-            <Modal.Title>
-              {this.modalTitleSwitch(this.state.modalFunc)}
-            </Modal.Title>
+            <Modal.Header closeButton>
+              <Modal.Title>
+                {this.modalTitleSwitch(this.state.modalFunc)}
+              </Modal.Title>
+            </Modal.Header>
             <Modal.Body>
               {this.modalBodySwitch(this.state.modalFunc)}
             </Modal.Body>

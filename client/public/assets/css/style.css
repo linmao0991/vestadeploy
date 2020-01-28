@@ -9,6 +9,10 @@ body {
     width: 100px
 }
 
+li.no-padding {
+    padding: 0px;
+}
+
 nav li {
     padding: 10px;
 }
@@ -138,6 +142,25 @@ nav ul {
         border-radius: 3px;
 }
 
+.add-chore {
+    margin: 1rem 0rem;
+}
+
+@media only screen and (max-width: 450px) {
+    .completed-btn-group {
+      display: block;
+      margin: auto;
+    }
+  }
+
+.chore-head-line {
+    width: 13rem;
+}
+
+element.style {
+    padding: 0px;
+}
+
 .btn-primary, .btn-secondary {
     display: inline-block;
     padding: 0.5em 1em;
@@ -228,17 +251,35 @@ h1, h2, h3, h5, p {
     color: #4281a4;
 }
 
+@media only screen and (max-width: 327px) {
+    #chores-tab {
+      font-size: 25px;
+    }
+  }
+
 #pets-tab {
     font-family: 'Caveat', cursive;
     font-size: 30px;
     color: #d4b483;
 }
 
+@media only screen and (max-width: 327px) {
+    #pets-tab {
+      font-size: 25px;
+    }
+  }
+
 #pantry-tab {
     font-family: 'Caveat', cursive;
     font-size: 30px;
     color: #c1666b;
 }
+
+@media only screen and (max-width: 327px) {
+    #pantry-tab {
+      font-size: 25px;
+    }
+  }
 
 
 /* FOOTER   */
