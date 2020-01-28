@@ -1,8 +1,7 @@
-import React, { Component, memo } from "react";
+import React, { Component} from "react";
 import API from "../../utils/API";
 import { Redirect } from "react-router-dom";
-import { Modal, Alert } from "react-bootstrap";
-import Container from "../../components/Container"
+import { Modal} from "react-bootstrap";
 import {
     HouseMemeber,
     UpdateEmail, 

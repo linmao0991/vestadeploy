@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { Route, Link, Switch } from 'react-router-dom'
-import ScrollspyNav from "react-scrollspy-nav";
+import { Route, Switch } from 'react-router-dom'
 import Navbar from "../components/Navbar";
 import SignIn from "../components/SignIn";
 import SignUp from "../components/Signup";
@@ -23,6 +22,7 @@ class Vesta extends Component {
       password: undefined,
       firstname: undefined,
       lastname: undefined,
+      points: undefined,
       email: undefined,
       home_id: undefined,
       home_name: undefined,
@@ -61,6 +61,7 @@ class Vesta extends Component {
           lastname: res.data.last_name,
           home_id: res.data.home_id,
           user_id: res.data.id,
+          points: res.data.points,
           email: res.data.email
         });
         console.log(res.data)

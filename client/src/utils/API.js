@@ -1,5 +1,4 @@
 import axios from "axios";
-import { it } from "date-fns/locale";
 
 export default {
   // PASSPORT CALLS
@@ -46,6 +45,11 @@ export default {
   removeMember: data => {
     console.log(data)
     return axios.post("/api/users/remove_from_home", data)
+  },
+
+  addUserPoints: pointData => {
+    console.log(pointData)
+    return axios.post("/api/users/add_points", pointData)
   },
   //----------------------//
 
@@ -98,10 +102,12 @@ export default {
   },
   // Used for marking a chore complete
   markChoreComplete: choreData => {
+    console.log(choreData)
     return axios.post("/api/edit/complete-chore", choreData);
   },
   // Used for marking a chore uncomplete
   markChoreUncomplete: choreData => {
+    console.log(choreData)
     return axios.post("/api/edit/uncomplete-chore", choreData);
   },
   //----------------------//
