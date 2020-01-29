@@ -4,30 +4,44 @@ body {
     height: 100%;
 }
 
+p {
+  font-family: 'Montserrat', sans-serif;
+}
+.modal-body {
+    font-family: 'Montserrat', sans-serif;
+}
+
 /* NAV */
-#nav-icon {
-    width: 100px
-}
+#nav-icon {width: 100px}
 
-li.no-padding {
-    padding: 0px;
-}
+li {padding: 10px;}
 
-nav li {
-    padding: 10px;
-}
-
-nav li li {
+li li {
     padding-left: 0px;
     padding-right: 0px;
 }
 
-nav ul {
-    white-space: nowrap;
+ul {white-space: nowrap;}
+
+.nav-color {background-color: #4280a4;}
+
+.nav-link {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bolder;
 }
 
-.nav-color {
-    background-color: #4280a4;
+/* INFORMATION */
+
+h1, h5, p {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.subheader, .questions, h3, h4 {
+  font-family: 'Caveat', cursive;
+}
+
+.headshot {
+  width: 60%;
 }
 
 /* BUTTONS */
@@ -40,6 +54,7 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #33637f;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .btn_blue_dark{
@@ -50,9 +65,11 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #234960;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
-.btn_green{
+.btn_green, .btn-info {
     display: inline-block;
     padding: 0.5em 1em;
     text-decoration: none;
@@ -60,6 +77,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #32807e;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .btn_green_dark{
@@ -70,6 +89,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #256968;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .btn_cream{
@@ -80,6 +101,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #aba8a6;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .btn_cream_dark{
@@ -90,6 +113,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #80807f;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .btn_yellow{
@@ -100,6 +125,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #9d8763;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .btn_yellow_dark{
@@ -110,6 +137,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #7f6e4f;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .btn_red{
@@ -120,6 +149,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #964e53;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .btn_red_dark{
@@ -130,6 +161,8 @@ nav ul {
     color: #FFF;
     border-bottom: solid 4px #773b40;
     border-radius: 3px;
+    font-family: 'Montserrat', sans-serif;
+
 }
 
 .deleteThisPet {
@@ -140,10 +173,8 @@ nav ul {
         color: #FFF;
         border-bottom: solid 4px #964e53;
         border-radius: 3px;
-}
+        font-family: 'Montserrat', sans-serif;
 
-.add-chore {
-    margin: 1rem 0rem;
 }
 
 @media only screen and (max-width: 450px) {
@@ -184,6 +215,7 @@ element.style {
 .btn-danger {
     display: inline-block;
     padding: 0.5em 1em;
+    margin: 5px;
     text-decoration: none;
     background: #c1666b;/*Button Color*/
     color: #FFF;
@@ -191,7 +223,12 @@ element.style {
     border-radius: 3px;
 }
 
+.fas {
+  margin:5px;
+}
+
 /* HERO */
+
 .hero {
     height: 500px;
     background-size: cover;
@@ -222,28 +259,55 @@ element.style {
   
   .hero h1 {
     font-size: 60px;
-    padding-top: 200px;
+    padding-top: 225px;
     margin-top: 0;
   }
   
-  .hero h2 {
+  .hero h3 {
     font-family: 'Caveat', cursive;
+    color:white;
   }
 
-/* INFORMATION */
-h1, h2, h3, h5, p {
-    font-family: 'Montserrat', sans-serif;
-}
-
-.subheader, .questions, h4 {
-    font-family: 'Caveat', cursive;
-}
-
-.headshot {
-    width: 60%;
-}
-
 /* HOMEHUB */
+
+#home-hub-tabs {
+  font-size: 40px;
+  font-family: 'Caveat', cursive;
+}
+
+.col-lg-6 h4 {
+  margin-top: 20px;
+}
+
+.tab-pane {
+  padding-top: 20px;
+}
+
+.add-chore {
+  margin-bottom: 20px;
+}
+
+#home-hub-jumbo {
+  text-align: center;
+  clear: both;
+  background-image: url("../images/home-hub-hero.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  height: 400px;
+  color: white;
+}
+
+#home-hub-jumbo h1 {
+  font-size: 60px;
+  padding-top: 130px;
+  margin-top: 0;
+}
+
+#home-hub-jumbo h2 {
+  font-family: 'Caveat', cursive;
+}
 
 #chores-tab {
     font-family: 'Caveat', cursive;
@@ -281,6 +345,84 @@ h1, h2, h3, h5, p {
     }
   }
 
+  .trashIcon {
+    color: #4281a4;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.deleteThisPet {
+  margin-left: 10px;
+}
+
+/* HOMELESS */
+
+#homeless h2 {
+  font-family: 'Caveat', cursive;
+}
+
+#homeless p {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.subheader, .questions, h3, h4 {
+  font-family: 'Caveat', cursive;
+}
+
+#homeless-jumbo {
+  text-align: center;
+  clear: both;
+  background-image: url("../images/homeless-jumbo.jpeg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  height: 400px;
+  color: white;
+}
+
+#homeless-jumbo h1 {
+  font-size: 60px;
+  padding-top: 130px;
+  margin-top: 0;
+}
+
+
+/* ACCOUNT */
+
+#account-jumbo {
+  text-align: center;
+  clear: both;
+  background-image: url("../images/account-hero.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+  height: 400px;
+  color: white;
+}
+
+#account-jumbo h1 {
+  font-size: 60px;
+  padding-top: 130px;
+  margin-top: 0;
+}
+
+#account-jumbo h2 {
+  font-family: 'Caveat', cursive;
+}
+
+.fa-plus-square {
+  color: #48A9A6;
+}
+
+.fa-minus-square {
+  color: #c1666b;
+}
+
+.fa-edit {
+  color: #4281a4;
+}
 
 /* FOOTER   */
 .footer {
@@ -289,5 +431,6 @@ h1, h2, h3, h5, p {
     position: relative;
     text-align: center;
     padding: 10px;
+    margin-top: 20px;
   }
   

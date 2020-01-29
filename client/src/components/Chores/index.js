@@ -10,12 +10,13 @@ class Chores extends React.Component {
 
         this.state = {
             users: [],
-            modalShow: false
+            modalShow: false,
         };
 
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
     }
+
 
     openModal() {
         this.setState({ modalShow: true });
@@ -36,6 +37,7 @@ class Chores extends React.Component {
             .then(res => {
                 let usersArray = res.data.map(this.storeUsernames)
                 this.setState({ users: usersArray });
+                return usersArray;
             })
     }
 
@@ -58,14 +60,14 @@ class Chores extends React.Component {
 
     componentDidMount = () => {
         this.grabUsers(this.props.home_id);
-        console.log(this.props.completedByPoints)
+        console.log(this.props.completedByPoints);
     }
 
     render() {
         return (
             <div>
                 <ul className="list-group list-group-flush">
-                    <li className="list-group-item list-group-item-success">{this.props.choreName}<br />
+                    <li className="list-group-item list-group-item-warning">{this.props.choreName}<br />
                         <button type="button" className="btn btn-secondary" style={{ margin: 5 }} onClick={this.openModal}>More Info...</button>
                         <button type="button" className="btn btn-success" onClick={() => this.markCompleted(this.props.id, this.props.first_name, this.props.user_id, this.props.completedByPoints)} style={{ margin: 5 }}>Completed!</button>
                     </li>
