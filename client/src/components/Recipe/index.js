@@ -1,7 +1,7 @@
 import React from 'react';
 import API from '../../utils/API'
-var appID = process.env.APPID;
-var apiKey = process.env.APIKEY;
+var appID = "996e3c2c";
+var apiKey = "09f281b44cbf4d7b7fcfcae22f05c79d";
 
 export class Recipe extends React.Component {
     constructor() {
