@@ -175,6 +175,7 @@ export class NewPetForm extends Component {
                             value={this.state.age}
                             onChange={this.handleInputChange}
                             type="number"
+                            min="0"
                             name="age"
                             id="age"
                             className="form-control validate"
@@ -192,6 +193,7 @@ export class NewPetForm extends Component {
                             placeholder="Pet Type" />
                     </div>
                     {/* Primary Vet */}
+                    <span>Primary Vet</span>
                     <div className="my-2">
                         <Select
                             value={this.primary_vet_id}
@@ -204,6 +206,7 @@ export class NewPetForm extends Component {
                         <button type="button" className="btn btn-info" onClick={this.props.getAllVets}>Find All Vets</button><span> </span><button type="button" className="btn btn-info" onClick={this.getMyVetsDropSelection}>My Vets</button>
                     </div>
                     {/* Emergency Vet */}
+                    <span>Emergency Vet</span>
                     <div className="my-2">
                         <Select
                             value={this.emergency_vet_id}
@@ -212,17 +215,18 @@ export class NewPetForm extends Component {
                             name="emergency_vet_id"
                         />
                     </div>
+                    <br />
                     <div>
                         <label htmlFor="Image">Upload Image</label>
                         <br />
                         <input
-                            id="Image" 
-                            type="file" 
-                            accept="image/*" 
-                            capture="camera" 
-                            name="photo" 
+                            id="Image"
+                            type="file"
+                            accept="image/*"
+                            capture="camera"
+                            name="photo"
                             onChange={this.getPetImage}
-                            />
+                        />
                     </div>
                     <br />
                     <div className="row justify-content-center">
